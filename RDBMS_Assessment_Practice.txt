@@ -399,4 +399,119 @@ RIGHT JOIN employees
     ON salesRepEmployeeNumber = employeeNumber
 ORDER BY 
     employeeNumber;
+============================================================================
+SELF JOIN
+============================================================================
+//The self join is often used to query hierarchical data or to compare a row with other rows within the same table.
+SELECT 
+    CONCAT(m.lastName, ', ', m.firstName) AS Manager,
+    CONCAT(e.lastName, ', ', e.firstName) AS 'Direct report'
+FROM
+    employees e
+INNER JOIN employees m ON 
+    m.employeeNumber = e.reportsTo
+ORDER BY 
+    Manager;
+//
+SELECT 
+    c1.city, 
+    c1.customerName, 
+    c2.customerName
+FROM
+    customers c1
+INNER JOIN customers c2 ON 
+    c1.city = c2.city
+    AND c1.customername > c2.customerName
+ORDER BY 
+    c1.city;
+============================================================================
+CROSS JOIN
+============================================================================
+//The CROSS JOIN clause returns the Cartesian product of rows from the joined tables.
+SELECT 
+    store_name, product_name
+FROM
+    stores AS a
+        CROSS JOIN
+    products AS b;
+============================================================================
+GROUP BY
+============================================================================
+//The GROUP BY clause groups a set of rows into a set of summary rows by values of columns or expressions. The GROUP BY clause returns one row for each group. In other words, it reduces the number of rows in the result set.
+//
+SELECT 
+    status
+FROM
+    orders
+GROUP BY status;
 
+//GROUP BY with aggregate functions
+GROUP BY with aggregate functions
+
+//
+SELECT 
+    YEAR(orderDate) AS year,
+    SUM(quantityOrdered * priceEach) AS total
+FROM
+    orders
+INNER JOIN orderdetails 
+    USING (orderNumber)
+WHERE
+    status = 'Shipped'
+GROUP BY 
+    YEAR(orderDate);
+    
+//
+SELECT 
+    YEAR(orderDate) AS year,
+    SUM(quantityOrdered * priceEach) AS total
+FROM
+    orders
+INNER JOIN orderdetails 
+    USING (orderNumber)
+WHERE
+    status = 'Shipped'
+GROUP BY 
+    year
+HAVING 
+    year > 2003;
+
+============================================================================
+HAVING
+============================================================================
+//SELECT 
+    ordernumber,
+    SUM(quantityOrdered) AS itemsCount,
+    SUM(priceeach*quantityOrdered) AS total
+FROM
+    orderdetails
+GROUP BY 
+   ordernumber
+HAVING 
+   total > 1000;
+============================================================================   
+Subquery
+============================================================================
+//
+SELECT 
+    lastName, firstName
+FROM
+    employees
+WHERE
+    officeCode IN (SELECT 
+            officeCode
+        FROM
+            offices
+        WHERE
+            country = 'USA');
+
+//
+SELECT 
+    customerNumber, 
+    checkNumber, 
+    amount
+FROM
+    payments
+WHERE
+    amount = (SELECT MAX(amount) FROM payments);
+============================================================================
